@@ -32,21 +32,22 @@ def processar_dados(uploaded_file):
 
 def gerar_perfil_esquematico(df):
     """Gera um gráfico de perfil esquemático da floresta."""
-    """Gera um gráfico de perfil esquemático da floresta."""
+    especies = df.groupby('Espécie').agg({'Altura (m)': 'mean', 'Diâmetro (cm)': 'mean'}).reset_index()
+    especies['Espécie'] = especies['Espécie'].apply(formatar_nome_cientifico)
+    
     fig, ax = plt.subplots(figsize=(8, 5))
     
-    # Criando distribuição aleatória para posição das árvores
     np.random.seed(42)
-    df['x_pos'] = np.random.uniform(0, 10, df.shape[0])
+    especies['x_pos'] = np.linspace(0, 10, len(especies))
     
-    # Desenhando árvores como círculos proporcionais
-    for _, row in df.iterrows():
-        circle = plt.Circle((row['x_pos'], 0), row['Diâmetro (cm)']/50, color='green', alpha=0.7)
-        ax.add_patch(circle)
+    for _, row in especies.iterrows():
+        ellipse = plt.Circle((row['x_pos'], row['Altura (m)']), row['Diâmetro (cm)']/30, color='green', alpha=0.7)
+        ax.add_patch(ellipse)
         ax.plot([row['x_pos'], row['x_pos']], [0, row['Altura (m)']], color='brown', linewidth=2)
+        ax.text(row['x_pos'], row['Altura (m)'] + 0.5, row['Espécie'], fontsize=8, fontstyle='italic', ha='center')
     
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, df['Altura (m)'].max() + 2)
+    ax.set_xlim(-1, 11)
+    ax.set_ylim(0, especies['Altura (m)'].max() + 2)
     ax.set_xlabel("Posição das Árvores")
     ax.set_ylabel("Altura (m)")
     ax.set_title("Perfil Esquemático da Comunidade Florestal")
@@ -55,14 +56,11 @@ def gerar_perfil_esquematico(df):
     plt.savefig("perfil_esquematico.png", bbox_inches='tight', dpi=300)
     return "perfil_esquematico.png"
 
-def gerar_relatorio(df, estatisticas):
+def gerar_relatorio(df):
     """Gera um relatório em Word com os resultados, incluindo gráficos."""
     doc = Document()
     doc.add_heading('Relatório de Inventário Florestal', level=1)
     doc.add_paragraph("Este relatório apresenta os resultados do inventário florestal realizado.")
-    doc.add_heading('1. Estatísticas Gerais', level=2)
-    for col in estatisticas.index:
-        doc.add_paragraph(f"{col}: {estatisticas.loc[col, 'mean']:.2f}")
     
     # Adicionar Perfil Esquemático
     perfil_path = gerar_perfil_esquematico(df)
@@ -84,17 +82,14 @@ st.write("Faça upload de um arquivo Excel contendo os dados do inventário flor
 
 uploaded_file = st.file_uploader("Envie seu arquivo", type=["xlsx"])
 if uploaded_file is not None:
-    df, estatisticas = processar_dados(uploaded_file)
+    df = processar_dados(uploaded_file)
     st.write("Prévia dos dados:")
     st.dataframe(df.head())
-    
-    st.write("Estatísticas Calculadas:")
-    st.dataframe(estatisticas)
     
     st.write("### Perfil Esquemático da Comunidade Florestal")
     perfil_path = gerar_perfil_esquematico(df)
     st.image(perfil_path, caption="Perfil Esquemático", use_container_width=True)
     
     if st.button("Gerar Relatório"):
-        relatorio_content = gerar_relatorio(df, estatisticas)
+        relatorio_content = gerar_relatorio(df)
         st.markdown(download_link(relatorio_content, "Relatorio_Inventario.docx", "📄 Baixar Relatório"), unsafe_allow_html=True)
