@@ -56,6 +56,22 @@ st.markdown(f"""
         font-size: 24px;
         text-align: center;
     }}
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 18px;
+        text-align: left;
+    }
+    .styled-table th, .styled-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    .styled-table th {
+        background-color: {primary_color};
+        color: white;
+        text-align: center;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -87,22 +103,26 @@ else:
         areas_intervencao = {}
         individuos_intervencao = {}
         
-        # Criando uma tabela organizada
-        col1, col2, col3 = st.columns([3, 1, 1])
-        with col1:
-            st.markdown("#### Tipo de Intervenção")
-        with col2:
-            st.markdown("#### Área (ha)")
-        with col3:
-            st.markdown("#### Nº de Indivíduos")
+        tabela_html = """
+        <table class='styled-table'>
+            <tr>
+                <th>Tipo de Intervenção</th>
+                <th>Área (ha)</th>
+                <th>Nº de Indivíduos</th>
+            </tr>
+        """
         
         for opcao in opcoes_intervencao:
-            col1, col2, col3 = st.columns([3, 1, 1])
-            with col1:
-                intervencoes_selecionadas[opcao] = st.checkbox(opcao)
-            with col2:
-                if intervencoes_selecionadas[opcao]:
-                    areas_intervencao[opcao] = st.number_input(f"", min_value=0.1, value=1.0, key=f"area_{opcao}")
-            with col3:
-                if opcao in ["Corte de árvores isoladas", "Supressão de eucaliptos"] and intervencoes_selecionadas[opcao]:
-                    individuos_intervencao[opcao] = st.number_input(f"", min_value=1, value=10, key=f"ind_{opcao}")
+            intervencoes_selecionadas[opcao] = st.checkbox(opcao)
+            area_input = "-"
+            individuos_input = "-"
+            
+            if intervencoes_selecionadas[opcao]:
+                area_input = st.number_input(f"", min_value=0.1, value=1.0, key=f"area_{opcao}")
+                if opcao in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
+                    individuos_input = st.number_input(f"", min_value=1, value=10, key=f"ind_{opcao}")
+            
+            tabela_html += f"<tr><td>{opcao}</td><td>{area_input}</td><td>{individuos_input}</td></tr>"
+        
+        tabela_html += "</table>"
+        st.markdown(tabela_html, unsafe_allow_html=True)
