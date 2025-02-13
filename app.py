@@ -24,13 +24,35 @@ def processar_dados(uploaded_file):
     return df, estatisticas
 
 def gerar_relatorio(df, estatisticas):
-    """Gera um relatório em Word com os resultados."""
+    """Gera um relatório em Word com os resultados, incluindo gráficos."""
     doc = Document()
     doc.add_heading('Relatório de Inventário Florestal', level=1)
     doc.add_paragraph("Este relatório apresenta os resultados do inventário florestal realizado.")
     doc.add_heading('1. Estatísticas Gerais', level=2)
     for col in estatisticas.index:
         doc.add_paragraph(f"{col}: {estatisticas.loc[col, 'mean']:.2f}")
+    
+    # Gerar gráficos e salvar como imagens temporárias
+    plt.style.use('ggplot')
+    
+    fig, ax = plt.subplots()
+    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7)
+    plt.xlabel("Diâmetro (cm)")
+    plt.ylabel("Frequência")
+    plt.title("Distribuição Diamétrica")
+    diametro_path = "diametro_plot.png"
+    plt.savefig(diametro_path)
+    doc.add_picture(diametro_path, width=5000000, height=2500000)
+    
+    fig, ax = plt.subplots()
+    df['Espécie'].value_counts().nlargest(10).plot(kind='bar', color='blue', alpha=0.7)
+    plt.xlabel("Espécie")
+    plt.ylabel("Quantidade")
+    plt.title("Top 10 Espécies Mais Frequentes")
+    plt.xticks(rotation=45)
+    especies_path = "especies_plot.png"
+    plt.savefig(especies_path)
+    doc.add_picture(especies_path, width=5000000, height=2500000)
     
     buffer = BytesIO()
     doc.save(buffer)
@@ -55,7 +77,7 @@ if uploaded_file is not None:
     st.write("Estatísticas Calculadas:")
     st.dataframe(estatisticas)
     
-    # Adicionar visualização de gráficos
+    # Adicionar visualização de gráficos no Streamlit
     st.write("### Distribuição dos Diâmetros das Árvores")
     fig, ax = plt.subplots()
     df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7)
