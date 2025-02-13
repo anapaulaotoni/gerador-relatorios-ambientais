@@ -61,7 +61,7 @@ if not st.session_state.inicio:
     st.markdown("<h2 class='stHeader'>Automatize a criação de relatórios ambientais com análises fitossociológicas e estruturais.</h2>", unsafe_allow_html=True)
     if st.button("🚀 Iniciar Elaboração"):
         st.session_state.inicio = True
-        st.experimental_rerun()
+        st.rerun()
 else:
     # Criando um fluxo passo a passo
     st.markdown("<h2 class='stHeader'>📌 Tipo de Inventário</h2>", unsafe_allow_html=True)
