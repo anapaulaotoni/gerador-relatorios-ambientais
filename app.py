@@ -226,7 +226,7 @@ elif st.session_state.pagina == "responsavel_tecnico":
         st.session_state.pagina = "equipe_tecnica"
         st.rerun()
 
- Objetivo da Intervenção Ambiental
+ #Objetivo da Intervenção Ambiental
 elif st.session_state.pagina == "objetivo_intervencao":
     st.markdown("<h2 class='stHeader'>📌 Objetivo da Intervenção Ambiental</h2>", unsafe_allow_html=True)
     
