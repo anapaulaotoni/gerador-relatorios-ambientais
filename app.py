@@ -11,6 +11,14 @@ def processar_dados(uploaded_file):
     """Processa os dados do arquivo e gera estatísticas."""
     df = pd.read_excel(uploaded_file)
     df = df.rename(columns={"scientific.name": "Espécie", "CAP": "Diâmetro (cm)", "HT": "Altura (m)"})
+    
+    # Converter colunas para numérico (evitar erro de string)
+    df['Diâmetro (cm)'] = pd.to_numeric(df['Diâmetro (cm)'], errors='coerce')
+    df['Altura (m)'] = pd.to_numeric(df['Altura (m)'], errors='coerce')
+    
+    # Remover linhas com valores nulos após conversão
+    df = df.dropna(subset=['Diâmetro (cm)', 'Altura (m)'])
+    
     df['Volume (m³)'] = np.pi * (df['Diâmetro (cm)'] / 200) ** 2 * df['Altura (m)']
     estatisticas = df.describe().T
     return df, estatisticas
@@ -46,6 +54,24 @@ if uploaded_file is not None:
     
     st.write("Estatísticas Calculadas:")
     st.dataframe(estatisticas)
+    
+    # Adicionar visualização de gráficos
+    st.write("### Distribuição dos Diâmetros das Árvores")
+    fig, ax = plt.subplots()
+    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7)
+    plt.xlabel("Diâmetro (cm)")
+    plt.ylabel("Frequência")
+    plt.title("Distribuição Diamétrica")
+    st.pyplot(fig)
+    
+    st.write("### Frequência das Espécies Mais Comuns")
+    fig, ax = plt.subplots()
+    df['Espécie'].value_counts().nlargest(10).plot(kind='bar', color='blue', alpha=0.7)
+    plt.xlabel("Espécie")
+    plt.ylabel("Quantidade")
+    plt.title("Top 10 Espécies Mais Frequentes")
+    plt.xticks(rotation=45)
+    st.pyplot(fig)
     
     if st.button("Gerar Relatório"):
         relatorio_content = gerar_relatorio(df, estatisticas)
