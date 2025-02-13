@@ -13,7 +13,7 @@ import subprocess
 # Configurações visuais globais do Streamlit
 st.set_page_config(page_title="Gerador de Relatórios Ambientais", layout="wide")
 
-# Estilização CSS personalizada
+# Estilização CSS personalizada com fundo de floresta
 st.markdown("""
     <style>
     .main {
@@ -21,10 +21,10 @@ st.markdown("""
         background-size: cover;
     }
     .block-container {
-        padding-top: 1rem;
-        background: rgba(255, 255, 255, 0.9);
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.85);
         border-radius: 10px;
-        padding: 20px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .stButton>button {
         background-color: #4CAF50;
@@ -41,6 +41,7 @@ st.markdown("""
         background-color: #FFFFFF;
         padding: 20px;
         border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .stTitle {
         color: #2E4053;
