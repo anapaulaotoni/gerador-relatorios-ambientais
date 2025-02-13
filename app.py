@@ -110,7 +110,16 @@ else:
         areas_intervencao = {}
         individuos_intervencao = {}
         
+        st.markdown("### Selecione as Intervenções")
         for chave in intervencoes.keys():
+            intervencoes[chave] = st.checkbox(chave)
+            if intervencoes[chave]:
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    areas_intervencao[chave] = st.number_input(f"Área requerida para {chave} (ha)", min_value=0.1, value=1.0)
+                with col2:
+                    if chave in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
+                        individuos_intervencao[chave] = st.number_input(f"Número de indivíduos para {chave}", min_value=1, value=10)
             col1, col2, col3 = st.columns([3, 1, 1])
             with col1:
                 intervencoes[chave] = st.checkbox(chave)
