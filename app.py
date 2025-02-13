@@ -7,6 +7,7 @@ from io import BytesIO
 import base64
 import os
 import scipy.stats as stats
+from adjustText import adjust_text
 
 def formatar_nome_cientifico(nome):
     """Abrevia a primeira palavra e mantém a segunda para nome científico."""
@@ -31,7 +32,7 @@ def processar_dados(uploaded_file):
     return df
 
 def gerar_perfil_esquematico(df):
-    """Gera um gráfico de perfil esquemático da floresta."""
+    """Gera um gráfico de perfil esquemático da floresta com nomes ajustados."""
     especies = df.groupby('Espécie').agg({'Altura (m)': 'mean', 'Diâmetro (cm)': 'mean'}).reset_index()
     especies['Espécie'] = especies['Espécie'].apply(formatar_nome_cientifico)
     
@@ -40,11 +41,14 @@ def gerar_perfil_esquematico(df):
     np.random.seed(42)
     especies['x_pos'] = np.linspace(0, 10, len(especies))
     
+    text_objects = []
     for _, row in especies.iterrows():
         ellipse = plt.Circle((row['x_pos'], row['Altura (m)']), row['Diâmetro (cm)']/30, color='green', alpha=0.7)
         ax.add_patch(ellipse)
         ax.plot([row['x_pos'], row['x_pos']], [0, row['Altura (m)']], color='brown', linewidth=2)
-        ax.text(row['x_pos'], row['Altura (m)'] + 0.5, row['Espécie'], fontsize=8, fontstyle='italic', ha='center')
+        text_objects.append(ax.text(row['x_pos'], row['Altura (m)'] + 0.5, row['Espécie'], fontsize=8, fontstyle='italic', ha='center'))
+    
+    adjust_text(text_objects, arrowprops=dict(arrowstyle='-', color='black'))
     
     ax.set_xlim(-1, 11)
     ax.set_ylim(0, especies['Altura (m)'].max() + 2)
