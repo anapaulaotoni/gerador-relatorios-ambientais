@@ -96,7 +96,7 @@ else:
     
     # Objetivo da Intervenção Ambiental
     with st.expander("📌 Objetivo da Intervenção Ambiental"):
-        objetivo_intervencao = st.selectbox("Selecione a finalidade da intervenção:",
+        objetivo_intervencao = st.multiselect("Selecione a finalidade da intervenção:",
                                            ["Supressão de vegetação nativa", "Intervenção em APPs",
                                             "Supressão de sub-bosque", "Manejo sustentável", "Destoca",
                                             "Corte de árvores isoladas", "Supressão de eucaliptos",
