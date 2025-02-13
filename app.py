@@ -10,6 +10,27 @@ import scipy.stats as stats
 from adjustText import adjust_text
 import subprocess
 
+# Formulário inicial para coletar informações do usuário
+st.sidebar.header("Configurações do Inventário")
+
+tipo_inventario = st.sidebar.selectbox(
+    "Tipo de Inventário",
+    ["Amostragem por parcelas", "Censo florestal"]
+)
+
+area_ua = st.sidebar.number_input(
+    "Tamanho da unidade amostral (m²)",
+    min_value=1, value=100
+)
+
+if tipo_inventario == "Amostragem por parcelas":
+    st.sidebar.write("Cada parcela será considerada uma unidade amostral.")
+else:
+    st.sidebar.write("Será considerado um censo florestal.")
+
+# Converter o tipo de inventário para o formato esperado pelo R
+tipo_inventario_r = "amostragem" if tipo_inventario == "Amostragem por parcelas" else "censo"
+
 def formatar_nome_cientifico(nome):
     """Abrevia a primeira palavra e mantém a segunda para nome científico."""
     palavras = nome.split()
