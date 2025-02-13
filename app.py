@@ -1,14 +1,8 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from docx import Document
 from io import BytesIO
-import base64
-import os
-import scipy.stats as stats
-from adjustText import adjust_text
-import subprocess
+import zipfile
+import geopandas as gpd
 
 # Configuração da página inicial
 st.set_page_config(page_title="Gerador de Relatórios Ambientais", layout="wide")
@@ -93,6 +87,26 @@ elif st.session_state.pagina == "dados_gerais":
     data = st.date_input("Data do Relatório")
     localizacao = st.text_area("Localização do Projeto", "Inserir")
     
+    if st.button("Avançar para Dados do Requerente"):
+        st.session_state.pagina = "dados_requerente"
+        st.rerun()
+
+elif st.session_state.pagina == "dados_requerente":
+    st.markdown("<h2 class='stHeader'>📌 Dados do Requerente ou Empreendedor</h2>", unsafe_allow_html=True)
+    
+    # Dados do Empreendedor
+    nome_razao = st.text_input("Nome/Razão Social do Empreendedor")
+    cnpj = st.text_input("CNPJ do Empreendedor")
+    endereco = st.text_input("Endereço do Empreendedor")
+    telefone = st.text_input("Telefone")
+    email = st.text_input("E-mail")
+
+    # Dados do Requerente
+    nome_requerente = st.text_input("Nome/Razão Social do Requerente")
+    cnpj_requerente = st.text_input("CNPJ do Requerente")
+    endereco_requerente = st.text_input("Endereço do Requerente")
+    
+    # Botões para navegar entre as páginas
     if st.button("Avançar para Objetivo da Intervenção Ambiental"):
         st.session_state.pagina = "objetivo_intervencao"
         st.rerun()
@@ -139,19 +153,6 @@ elif st.session_state.pagina == "objetivo_intervencao":
         st.session_state.pagina = "detalhes_adicionais"
         st.rerun()
 
-elif st.session_state.pagina == "finalidade_intervencao":
-    st.markdown("<h2 class='stHeader'>📌 Finalidade da Intervenção Requerida</h2>", unsafe_allow_html=True)
-    st.write("Por favor, faça o upload do shapefile da área de intervenção para geração do mapa de localização.")
-    shapefile = st.file_uploader("Upload do Shapefile (arquivo .zip contendo .shp, .shx, .dbf, .prj)", type=["zip"])
-    
-    if st.button("Próximo"):
-        st.session_state.pagina = "detalhes_adicionais"
-        st.rerun()
-    
-    if st.button("Voltar"):
-        st.session_state.pagina = "objetivo_intervencao"
-        st.rerun()
-
 elif st.session_state.pagina == "detalhes_adicionais":
     st.markdown("<h2 class='stHeader'>📌 Informações Adicionais</h2>", unsafe_allow_html=True)
     descricao_projeto = st.text_area("Descrição do Projeto", "Inserir")
@@ -165,3 +166,46 @@ elif st.session_state.pagina == "detalhes_adicionais":
 elif st.session_state.pagina == "finalizar":
     st.markdown("<h2 class='stHeader'>✅ Relatório Gerado com Sucesso!</h2>", unsafe_allow_html=True)
     st.write("Baixe seu relatório abaixo.")
+
+    # Função para gerar o relatório DOCX
+    def gerar_relatorio():
+        doc = Document()
+        doc.add_heading('Relatório Ambiental', 0)
+
+        # Informações Gerais
+        doc.add_heading('Informações Gerais', level=1)
+        doc.add_paragraph(f"Nome do Projeto: {nome_projeto}")
+        doc.add_paragraph(f"Responsável Técnico: {responsavel}")
+        doc.add_paragraph(f"Data do Relatório: {data}")
+        doc.add_paragraph(f"Localização do Projeto: {localizacao}")
+
+        # Dados do Requerente
+        doc.add_heading('Dados do Requerente ou Empreendedor', level=1)
+        doc.add_paragraph(f"Nome/Razão Social do Empreendedor: {nome_razao}")
+        doc.add_paragraph(f"CNPJ do Empreendedor: {cnpj}")
+        doc.add_paragraph(f"Endereço do Empreendedor: {endereco}")
+        doc.add_paragraph(f"Telefone: {telefone}")
+        doc.add_paragraph(f"E-mail: {email}")
+
+        # Objetivo da Intervenção Ambiental
+        doc.add_heading('Objetivo da Intervenção Ambiental', level=1)
+        for opcao in opcoes_intervencao:
+            if intervencoes_selecionadas[opcao]:
+                doc.add_paragraph(f"- {opcao}: Área = {areas_intervencao.get(opcao, '-')}, Nº de Indivíduos = {individuos_intervencao.get(opcao, '-')}")
+        
+        # Informações Adicionais
+        doc.add_heading('Informações Adicionais', level=1)
+        doc.add_paragraph(f"Descrição do Projeto: {descricao_projeto}")
+        doc.add_paragraph(f"Metodologia Utilizada: {metodologia}")
+        doc.add_paragraph(f"Conclusão: {conclusao}")
+
+        # Salvando o documento em um arquivo BytesIO
+        buffer = BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+
+        return buffer
+
+    # Exibindo o botão para download
+    buffer = gerar_relatorio()
+    st.download_button(label="Download do Relatório", data=buffer, file_name="relatorio_ambiental.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
