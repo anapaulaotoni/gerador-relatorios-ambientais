@@ -8,6 +8,7 @@ import base64
 import os
 import scipy.stats as stats
 from adjustText import adjust_text
+import subprocess
 
 def formatar_nome_cientifico(nome):
     """Abrevia a primeira palavra e mantém a segunda para nome científico."""
@@ -31,6 +32,10 @@ def processar_dados(uploaded_file):
     df['Volume (m³)'] = np.pi * (df['Diâmetro (cm)'] / 200) ** 2 * df['Altura (m)']
     return df
 
+def rodar_analise_r(abundancias):
+    """Executa o script R e captura os resultados."""
+    resultado = subprocess.run(["Rscript", "analises_florestais.R", abundancias], capture_output=True, text=True)
+    return resultado.stdout
 def gerar_perfil_esquematico(df):
     """Gera um gráfico de perfil esquemático da floresta com nomes ajustados."""
     especies = df.groupby('Espécie').agg({'Altura (m)': 'mean', 'Diâmetro (cm)': 'mean'}).reset_index()
