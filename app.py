@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -50,6 +49,7 @@ def gerar_relatorio(df, estatisticas):
     x_vals = np.linspace(df['Diâmetro (cm)'].min(), df['Diâmetro (cm)'].max(), 100)
     ax.plot(x_vals, kde(x_vals) * len(df['Diâmetro (cm)']) * np.diff(x_vals).mean(), color='red')
     ax.set_xlim(left=0)  # Garante que o eixo X começa do zero
+    ax.grid(False)  # Remove as grades
     plt.xlabel("Diâmetro (cm)")
     plt.ylabel("Frequência")
     plt.title("Distribuição Diamétrica")
@@ -65,6 +65,7 @@ def gerar_relatorio(df, estatisticas):
     plt.ylabel("Quantidade")
     plt.title("Abundância de Espécies")
     plt.xticks(rotation=45, ha='right', fontsize=10, fontstyle='italic')
+    ax.grid(False)  # Remove as grades
     especies_path = "especies_plot.png"
     plt.savefig(especies_path, bbox_inches='tight', dpi=300)
     doc.add_picture(especies_path, width=5000000, height=3000000)
@@ -100,6 +101,7 @@ if uploaded_file is not None:
     x_vals = np.linspace(df['Diâmetro (cm)'].min(), df['Diâmetro (cm)'].max(), 100)
     ax.plot(x_vals, kde(x_vals) * len(df['Diâmetro (cm)']) * np.diff(x_vals).mean(), color='red')
     ax.set_xlim(left=0)  # Garante que o eixo X começa do zero
+    ax.grid(False)  # Remove as grades
     plt.xlabel("Diâmetro (cm)")
     plt.ylabel("Frequência")
     plt.title("Distribuição Diamétrica")
@@ -114,6 +116,7 @@ if uploaded_file is not None:
     plt.ylabel("Quantidade")
     plt.title("Abundância de Espécies")
     plt.xticks(rotation=45, ha='right', fontsize=10, fontstyle='italic')
+    ax.grid(False)  # Remove as grades
     st.pyplot(fig)
     
     if st.button("Gerar Relatório"):
