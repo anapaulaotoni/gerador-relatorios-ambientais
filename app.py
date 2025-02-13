@@ -134,3 +134,21 @@ elif st.session_state.pagina == "objetivo_intervencao":
         
         tabela_html += "</table>"
         st.markdown(tabela_html, unsafe_allow_html=True)
+    
+    if st.button("Próximo"):
+        st.session_state.pagina = "detalhes_adicionais"
+        st.rerun()
+
+elif st.session_state.pagina == "detalhes_adicionais":
+    st.markdown("<h2 class='stHeader'>📌 Informações Adicionais</h2>", unsafe_allow_html=True)
+    descricao_projeto = st.text_area("Descrição do Projeto", "Inserir")
+    metodologia = st.text_area("Metodologia Utilizada", "Inserir")
+    conclusao = st.text_area("Conclusão e Considerações Finais", "Inserir")
+    
+    if st.button("Finalizar e Gerar Relatório"):
+        st.session_state.pagina = "finalizar"
+        st.rerun()
+
+elif st.session_state.pagina == "finalizar":
+    st.markdown("<h2 class='stHeader'>✅ Relatório Gerado com Sucesso!</h2>", unsafe_allow_html=True)
+    st.write("Baixe seu relatório abaixo.")
