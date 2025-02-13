@@ -75,7 +75,7 @@ else:
     
     # Objetivo da Intervenção Ambiental
     with st.expander("📌 Objetivo da Intervenção Ambiental"):
-        st.markdown("### Selecione as Intervenções")
+        st.markdown("### Selecione as Intervenções e Preencha os Detalhes")
         
         opcoes_intervencao = [
             "Supressão de vegetação nativa", "Intervenção em APPs", "Supressão de sub-bosque", 
@@ -84,20 +84,25 @@ else:
         ]
         
         intervencoes_selecionadas = {}
-        
-        for opcao in opcoes_intervencao:
-            intervencoes_selecionadas[opcao] = st.checkbox(opcao)
-            
-        st.markdown("### Parâmetros das Intervenções")
-        
         areas_intervencao = {}
         individuos_intervencao = {}
         
-        for opcao, selecionado in intervencoes_selecionadas.items():
-            if selecionado:
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    areas_intervencao[opcao] = st.number_input(f"Área (ha) para {opcao}", min_value=0.1, value=1.0)
-                with col2:
-                    if opcao in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
-                        individuos_intervencao[opcao] = st.number_input(f"Indivíduos para {opcao}", min_value=1, value=10)
+        # Criando uma tabela organizada
+        col1, col2, col3 = st.columns([3, 1, 1])
+        with col1:
+            st.markdown("#### Tipo de Intervenção")
+        with col2:
+            st.markdown("#### Área (ha)")
+        with col3:
+            st.markdown("#### Nº de Indivíduos")
+        
+        for opcao in opcoes_intervencao:
+            col1, col2, col3 = st.columns([3, 1, 1])
+            with col1:
+                intervencoes_selecionadas[opcao] = st.checkbox(opcao)
+            with col2:
+                if intervencoes_selecionadas[opcao]:
+                    areas_intervencao[opcao] = st.number_input(f"", min_value=0.1, value=1.0, key=f"area_{opcao}")
+            with col3:
+                if opcao in ["Corte de árvores isoladas", "Supressão de eucaliptos"] and intervencoes_selecionadas[opcao]:
+                    individuos_intervencao[opcao] = st.number_input(f"", min_value=1, value=10, key=f"ind_{opcao}")
