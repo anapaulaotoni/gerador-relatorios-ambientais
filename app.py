@@ -16,7 +16,7 @@ st.set_page_config(page_title="Gerador de Relatórios Ambientais", layout="wide"
 # Paleta de cores personalizada
 primary_color = "#8FC9CB"
 secondary_color = "#97C1A9"
-background_color = "#D4F0F1"
+background_color = "#CCE2CB"
 accent_color = "#5FA37A"
 text_color = "#2E4053"
 
