@@ -278,13 +278,13 @@ elif st.session_state.pagina == "objetivo_intervencao":
         # Se pelo menos uma intervenção for selecionada, avança para a próxima página
         if any(intervencoes_selecionadas.values()):
             st.session_state.pagina = "caracterizacao_meio_biotico"
-            st.rerun()  # Usando st.rerun() aqui
+            st.experimental_rerun()  # Isso vai recarregar a página e avançar para a próxima
         else:
             st.warning("Por favor, selecione pelo menos uma intervenção antes de avançar.")
     
     if st.button("Voltar para Dados do Responsável Técnico"):
         st.session_state.pagina = "responsavel_tecnico"
-        st.rerun()  # Usando st.rerun() aqui
+        st.experimental_rerun()  # Isso vai recarregar a página anterior
 
 # Área de Preservação Permanente (APP)
 elif st.session_state.pagina == "app":
@@ -304,17 +304,19 @@ elif st.session_state.pagina == "app":
         # Verificando se o botão "Avançar" pode funcionar
         if app_inserido == "Sim" and area_app > 0:  # Verifica se a área foi preenchida
             st.session_state.pagina = "corredores_ecologicos"
-            st.rerun()  # Usando st.rerun() aqui
+            st.experimental_rerun()  # Isso vai recarregar a página e avançar para a próxima
         elif app_inserido == "Não":  # Se a resposta for "Não", avança para a próxima página
             st.session_state.pagina = "corredores_ecologicos"
-            st.rerun()  # Usando st.rerun() aqui
+            st.experimental_rerun()  # Isso vai recarregar a página e avançar para a próxima
         else:
             st.warning("Por favor, insira os dados necessários antes de avançar.")
     
     # Botão de Voltar
     if st.button("Voltar para Dados do Responsável Técnico"):
         st.session_state.pagina = "responsavel_tecnico"
-        st.rerun()  # Usando st.rerun() aqui
+        st.experimental_rerun()  # Isso vai recarregar a página anterior
+
+
 
 # Reserva da Biosfera da Mata Atlântica
 elif st.session_state.pagina == "reserva_biosfera_mata_atlantica":
