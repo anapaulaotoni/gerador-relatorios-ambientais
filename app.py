@@ -7,6 +7,13 @@ from io import BytesIO
 import base64
 import os
 
+def formatar_nome_cientifico(nome):
+    """Abrevia a primeira palavra e mantém a segunda para nome científico."""
+    palavras = nome.split()
+    if len(palavras) >= 2:
+        return f"{palavras[0][0]}. {palavras[1]}"
+    return nome
+
 def processar_dados(uploaded_file):
     """Processa os dados do arquivo e gera estatísticas."""
     df = pd.read_excel(uploaded_file)
@@ -33,26 +40,29 @@ def gerar_relatorio(df, estatisticas):
         doc.add_paragraph(f"{col}: {estatisticas.loc[col, 'mean']:.2f}")
     
     # Gerar gráficos e salvar como imagens temporárias
-    plt.style.use('ggplot')
+    plt.style.use('default')  # Fundo branco
     
-    fig, ax = plt.subplots()
-    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7, edgecolor='black')
+    df['Diâmetro (cm)'].plot(kind='kde', ax=ax, secondary_y=False, color='red')
     plt.xlabel("Diâmetro (cm)")
     plt.ylabel("Frequência")
     plt.title("Distribuição Diamétrica")
     diametro_path = "diametro_plot.png"
-    plt.savefig(diametro_path)
-    doc.add_picture(diametro_path, width=5000000, height=2500000)
+    plt.savefig(diametro_path, bbox_inches='tight', dpi=300)
+    doc.add_picture(diametro_path, width=5000000, height=3000000)
     
-    fig, ax = plt.subplots()
-    df['Espécie'].value_counts().nlargest(10).plot(kind='bar', color='blue', alpha=0.7)
-    plt.xlabel("Espécie")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    especies_formatadas = df['Espécie'].value_counts().nlargest(10)
+    especies_formatadas.index = especies_formatadas.index.map(formatar_nome_cientifico)
+    especies_formatadas.plot(kind='bar', color='blue', alpha=0.7, edgecolor='black')
+    plt.xlabel("Espécie", fontsize=10, fontstyle='italic')
     plt.ylabel("Quantidade")
-    plt.title("Top 10 Espécies Mais Frequentes")
-    plt.xticks(rotation=45)
+    plt.title("Abundância de Espécies")
+    plt.xticks(rotation=45, ha='right', fontsize=10, fontstyle='italic')
     especies_path = "especies_plot.png"
-    plt.savefig(especies_path)
-    doc.add_picture(especies_path, width=5000000, height=2500000)
+    plt.savefig(especies_path, bbox_inches='tight', dpi=300)
+    doc.add_picture(especies_path, width=5000000, height=3000000)
     
     buffer = BytesIO()
     doc.save(buffer)
@@ -79,20 +89,23 @@ if uploaded_file is not None:
     
     # Adicionar visualização de gráficos no Streamlit
     st.write("### Distribuição dos Diâmetros das Árvores")
-    fig, ax = plt.subplots()
-    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7, edgecolor='black')
+    df['Diâmetro (cm)'].plot(kind='kde', ax=ax, secondary_y=False, color='red')
     plt.xlabel("Diâmetro (cm)")
     plt.ylabel("Frequência")
     plt.title("Distribuição Diamétrica")
     st.pyplot(fig)
     
-    st.write("### Frequência das Espécies Mais Comuns")
-    fig, ax = plt.subplots()
-    df['Espécie'].value_counts().nlargest(10).plot(kind='bar', color='blue', alpha=0.7)
-    plt.xlabel("Espécie")
+    st.write("### Abundância de Espécies")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    especies_formatadas = df['Espécie'].value_counts().nlargest(10)
+    especies_formatadas.index = especies_formatadas.index.map(formatar_nome_cientifico)
+    especies_formatadas.plot(kind='bar', color='blue', alpha=0.7, edgecolor='black')
+    plt.xlabel("Espécie", fontsize=10, fontstyle='italic')
     plt.ylabel("Quantidade")
-    plt.title("Top 10 Espécies Mais Frequentes")
-    plt.xticks(rotation=45)
+    plt.title("Abundância de Espécies")
+    plt.xticks(rotation=45, ha='right', fontsize=10, fontstyle='italic')
     st.pyplot(fig)
     
     if st.button("Gerar Relatório"):
