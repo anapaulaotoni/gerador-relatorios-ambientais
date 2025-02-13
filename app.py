@@ -227,6 +227,7 @@ elif st.session_state.pagina == "responsavel_tecnico":
         st.rerun()
 
  #Objetivo da Intervenção Ambiental
+
 elif st.session_state.pagina == "objetivo_intervencao":
     st.markdown("<h2 class='stHeader'>📌 Objetivo da Intervenção Ambiental</h2>", unsafe_allow_html=True)
     
@@ -274,13 +275,46 @@ elif st.session_state.pagina == "objetivo_intervencao":
     
     # Verificar se o botão "Próximo" foi pressionado para avançar
     if st.button("Próximo"):
-        st.session_state.pagina = "caracterizacao_meio_biotico"
-        st.rerun()
+        # Se pelo menos uma intervenção for selecionada, avança para a próxima página
+        if any(intervencoes_selecionadas.values()):
+            st.session_state.pagina = "caracterizacao_meio_biotico"
+            st.experimental_rerun()  # Isso vai recarregar a página e avançar para a próxima
+        else:
+            st.warning("Por favor, selecione pelo menos uma intervenção antes de avançar.")
     
     if st.button("Voltar para Dados do Responsável Técnico"):
         st.session_state.pagina = "responsavel_tecnico"
-        st.rerun()
+        st.experimental_rerun()  # Isso vai recarregar a página anterior
 
+# Área de Preservação Permanente (APP)
+elif st.session_state.pagina == "app":
+    st.markdown("<h2 class='stHeader'>📌 Área de Preservação Permanente (APP)</h2>", unsafe_allow_html=True)
+    
+    # Pergunta se a área de intervenção está inserida em APP
+    app_inserido = st.radio("A área de intervenção do projeto está inserida em Área de Preservação Permanente (APP)?", ["Selecione", "Sim", "Não"])
+    
+    # Condição para mostrar a área sobreposta se o usuário selecionar "Sim"
+    if app_inserido == "Sim":
+        area_app = st.number_input("Tamanho da área (ha) sobreposta com a área de intervenção", min_value=0.1)
+    else:
+        area_app = 0
+    
+    # Botões para avançar ou voltar
+    if st.button("Avançar para Corredores Ecológicos"):
+        # Verificando se o botão "Avançar" pode funcionar
+        if app_inserido == "Sim" and area_app > 0:  # Verifica se a área foi preenchida
+            st.session_state.pagina = "corredores_ecologicos"
+            st.experimental_rerun()  # Isso vai recarregar a página e avançar para a próxima
+        elif app_inserido == "Não":  # Se a resposta for "Não", avança para a próxima página
+            st.session_state.pagina = "corredores_ecologicos"
+            st.experimental_rerun()  # Isso vai recarregar a página e avançar para a próxima
+        else:
+            st.warning("Por favor, insira os dados necessários antes de avançar.")
+    
+    # Botão de Voltar
+    if st.button("Voltar para Dados do Responsável Técnico"):
+        st.session_state.pagina = "responsavel_tecnico"
+        st.experimental_rerun()  # Isso vai recarregar a página anterior
 # Área de Preservação Permanente (APP)
 
 # Área de Preservação Permanente (APP)
