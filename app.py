@@ -139,6 +139,19 @@ elif st.session_state.pagina == "objetivo_intervencao":
         st.session_state.pagina = "detalhes_adicionais"
         st.rerun()
 
+elif st.session_state.pagina == "finalidade_intervencao":
+    st.markdown("<h2 class='stHeader'>📌 Finalidade da Intervenção Requerida</h2>", unsafe_allow_html=True)
+    st.write("Por favor, faça o upload do shapefile da área de intervenção para geração do mapa de localização.")
+    shapefile = st.file_uploader("Upload do Shapefile (arquivo .zip contendo .shp, .shx, .dbf, .prj)", type=["zip"])
+    
+    if st.button("Próximo"):
+        st.session_state.pagina = "detalhes_adicionais"
+        st.rerun()
+    
+    if st.button("Voltar"):
+        st.session_state.pagina = "objetivo_intervencao"
+        st.rerun()
+
 elif st.session_state.pagina == "detalhes_adicionais":
     st.markdown("<h2 class='stHeader'>📌 Informações Adicionais</h2>", unsafe_allow_html=True)
     descricao_projeto = st.text_area("Descrição do Projeto", "Inserir")
