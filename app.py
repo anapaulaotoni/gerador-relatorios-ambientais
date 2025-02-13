@@ -226,10 +226,60 @@ elif st.session_state.pagina == "responsavel_tecnico":
         st.session_state.pagina = "equipe_tecnica"
         st.rerun()
 
-# Objetivo da Intervenção Ambiental
+ Objetivo da Intervenção Ambiental
 elif st.session_state.pagina == "objetivo_intervencao":
-    # Código do objetivo da intervenção já desenvolvido aqui
-    pass
+    st.markdown("<h2 class='stHeader'>📌 Objetivo da Intervenção Ambiental</h2>", unsafe_allow_html=True)
+    
+    st.markdown("### Selecione as Intervenções e Preencha os Detalhes")
+    
+    # Opções de intervenções
+    opcoes_intervencao = [
+        "Supressão de vegetação nativa", 
+        "Intervenção em APPs", 
+        "Supressão de sub-bosque", 
+        "Manejo sustentável", 
+        "Destoca", 
+        "Corte de árvores isoladas", 
+        "Supressão de eucaliptos", 
+        "Aproveitamento de material lenhoso"
+    ]
+    
+    intervencoes_selecionadas = {}
+    areas_intervencao = {}
+    individuos_intervencao = {}
+    
+    tabela_html = """
+    <table class='styled-table'>
+        <tr>
+            <th>Tipo de Intervenção</th>
+            <th>Área (ha)</th>
+            <th>Nº de Indivíduos</th>
+        </tr>
+    """
+    
+    for opcao in opcoes_intervencao:
+        intervencoes_selecionadas[opcao] = st.checkbox(opcao)
+        area_input = "-"
+        individuos_input = "-"
+        
+        if intervencoes_selecionadas[opcao]:
+            area_input = st.number_input(f"Área (ha) - {opcao}", min_value=0.1, value=1.0, key=f"area_{opcao}")
+            if opcao in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
+                individuos_input = st.number_input(f"Nº de Indivíduos - {opcao}", min_value=1, value=10, key=f"ind_{opcao}")
+        
+        tabela_html += f"<tr><td>{opcao}</td><td>{area_input}</td><td>{individuos_input}</td></tr>"
+    
+    tabela_html += "</table>"
+    st.markdown(tabela_html, unsafe_allow_html=True)
+    
+    # Verificar se o botão "Próximo" foi pressionado para avançar
+    if st.button("Próximo"):
+        st.session_state.pagina = "caracterizacao_meio_biotico"
+        st.rerun()
+    
+    if st.button("Voltar para Dados do Responsável Técnico"):
+        st.session_state.pagina = "responsavel_tecnico"
+        st.rerun()
 
 # Área de Preservação Permanente (APP)
 elif st.session_state.pagina == "app":
