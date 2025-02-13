@@ -96,12 +96,28 @@ else:
     
     # Objetivo da Intervenção Ambiental
     with st.expander("📌 Objetivo da Intervenção Ambiental"):
-        objetivo_intervencao = st.multiselect("Selecione a finalidade da intervenção:",
-                                           ["Supressão de vegetação nativa", "Intervenção em APPs",
-                                            "Supressão de sub-bosque", "Manejo sustentável", "Destoca",
-                                            "Corte de árvores isoladas", "Supressão de eucaliptos",
-                                            "Aproveitamento de material lenhoso"])
-        area_intervencao = st.number_input("Área requerida (ha)", min_value=0.1, value=1.0)
+        intervencoes = {
+            "Supressão de vegetação nativa": False,
+            "Intervenção em APPs": False,
+            "Supressão de sub-bosque": False,
+            "Manejo sustentável": False,
+            "Destoca": False,
+            "Corte de árvores isoladas": False,
+            "Supressão de eucaliptos": False,
+            "Aproveitamento de material lenhoso": False
+        }
+        
+        for chave in intervencoes.keys():
+            intervencoes[chave] = st.checkbox(chave)
+        
+        areas_intervencao = {}
+        individuos_intervencao = {}
+        
+        for chave, selecionado in intervencoes.items():
+            if selecionado:
+                areas_intervencao[chave] = st.number_input(f"Área requerida para {chave} (ha)", min_value=0.1, value=1.0)
+                if chave in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
+                    individuos_intervencao[chave] = st.number_input(f"Número de indivíduos para {chave}", min_value=1, value=10)
     
     # Caracterização do Meio Biótico
     with st.expander("📌 Caracterização do Meio Biótico"):
