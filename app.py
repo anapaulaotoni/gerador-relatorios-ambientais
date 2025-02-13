@@ -111,6 +111,15 @@ else:
         individuos_intervencao = {}
         
         for chave in intervencoes.keys():
+            col1, col2, col3 = st.columns([3, 1, 1])
+            with col1:
+                intervencoes[chave] = st.checkbox(chave)
+            with col2:
+                if intervencoes[chave]:
+                    areas_intervencao[chave] = st.number_input(f"Área (ha) para {chave}", min_value=0.1, value=1.0)
+            with col3:
+                if chave in ["Corte de árvores isoladas", "Supressão de eucaliptos"] and intervencoes[chave]:
+                    individuos_intervencao[chave] = st.number_input(f"Indivíduos para {chave}", min_value=1, value=10)
             with st.expander(chave):
                 intervencoes[chave] = st.checkbox(f"Selecionar {chave}")
                 if intervencoes[chave]:
