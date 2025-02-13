@@ -93,7 +93,7 @@ if uploaded_file is not None:
     
     st.write("### Perfil Esquemático da Comunidade Florestal")
     perfil_path = gerar_perfil_esquematico(df)
-    st.image(perfil_path, caption="Perfil Esquemático", use_column_width=True)
+    st.image(perfil_path, caption="Perfil Esquemático", use_container_width=True)
     
     if st.button("Gerar Relatório"):
         relatorio_content = gerar_relatorio(df, estatisticas)
