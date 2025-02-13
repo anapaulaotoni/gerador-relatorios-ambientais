@@ -107,13 +107,24 @@ else:
             "Aproveitamento de material lenhoso": False
         }
         
-        for chave in intervencoes.keys():
-            intervencoes[chave] = st.checkbox(chave)
-        
         areas_intervencao = {}
         individuos_intervencao = {}
         
-        for chave, selecionado in intervencoes.items():
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            for chave in intervencoes.keys():
+                intervencoes[chave] = st.checkbox(chave)
+        
+        with col2:
+            for chave, selecionado in intervencoes.items():
+                if selecionado:
+                    areas_intervencao[chave] = st.number_input(f"Área (ha) para {chave}", min_value=0.1, value=1.0)
+        
+        with col3:
+            for chave in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
+                if intervencoes.get(chave, False):
+                    individuos_intervencao[chave] = st.number_input(f"Indivíduos para {chave}", min_value=1, value=10)
             if selecionado:
                 areas_intervencao[chave] = st.number_input(f"Área requerida para {chave} (ha)", min_value=0.1, value=1.0)
                 if chave in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
