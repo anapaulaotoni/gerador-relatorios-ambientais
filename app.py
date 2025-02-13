@@ -31,6 +31,30 @@ def processar_dados(uploaded_file):
     estatisticas = df.describe().T
     return df, estatisticas
 
+def gerar_perfil_esquematico(df):
+    """Gera um gráfico de perfil esquemático da floresta."""
+    fig, ax = plt.subplots(figsize=(8, 5))
+    
+    # Criando distribuição aleatória para posição das árvores
+    np.random.seed(42)
+    df['x_pos'] = np.random.uniform(0, 10, df.shape[0])
+    
+    # Desenhando árvores como círculos proporcionais
+    for _, row in df.iterrows():
+        circle = plt.Circle((row['x_pos'], 0), row['Diâmetro (cm)']/50, color='green', alpha=0.7)
+        ax.add_patch(circle)
+        ax.plot([row['x_pos'], row['x_pos']], [0, row['Altura (m)']], color='brown', linewidth=2)
+    
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, df['Altura (m)'].max() + 2)
+    ax.set_xlabel("Posição das Árvores")
+    ax.set_ylabel("Altura (m)")
+    ax.set_title("Perfil Esquemático da Comunidade Florestal")
+    ax.grid(False)
+    
+    plt.savefig("perfil_esquematico.png", bbox_inches='tight', dpi=300)
+    return "perfil_esquematico.png"
+
 def gerar_relatorio(df, estatisticas):
     """Gera um relatório em Word com os resultados, incluindo gráficos."""
     doc = Document()
@@ -40,35 +64,9 @@ def gerar_relatorio(df, estatisticas):
     for col in estatisticas.index:
         doc.add_paragraph(f"{col}: {estatisticas.loc[col, 'mean']:.2f}")
     
-    # Gerar gráficos e salvar como imagens temporárias
-    plt.style.use('default')  # Fundo branco
-    
-    fig, ax = plt.subplots(figsize=(6, 4))
-    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7, edgecolor='black')
-    kde = stats.gaussian_kde(df['Diâmetro (cm)'].dropna())
-    x_vals = np.linspace(df['Diâmetro (cm)'].min(), df['Diâmetro (cm)'].max(), 100)
-    ax.plot(x_vals, kde(x_vals) * len(df['Diâmetro (cm)']) * np.diff(x_vals).mean(), color='red')
-    ax.set_xlim(left=0)  # Garante que o eixo X começa do zero
-    ax.grid(False)  # Remove as grades
-    plt.xlabel("Diâmetro (cm)")
-    plt.ylabel("Frequência")
-    plt.title("Distribuição Diamétrica")
-    diametro_path = "diametro_plot.png"
-    plt.savefig(diametro_path, bbox_inches='tight', dpi=300)
-    doc.add_picture(diametro_path, width=5000000, height=3000000)
-    
-    fig, ax = plt.subplots(figsize=(6, 4))
-    especies_formatadas = df['Espécie'].value_counts().nlargest(10)
-    especies_formatadas.index = especies_formatadas.index.map(formatar_nome_cientifico)
-    especies_formatadas.plot(kind='bar', color='blue', alpha=0.7, edgecolor='black')
-    plt.xlabel("Espécie", fontsize=10, fontstyle='italic')
-    plt.ylabel("Quantidade")
-    plt.title("Abundância de Espécies")
-    plt.xticks(rotation=45, ha='right', fontsize=10, fontstyle='italic')
-    ax.grid(False)  # Remove as grades
-    especies_path = "especies_plot.png"
-    plt.savefig(especies_path, bbox_inches='tight', dpi=300)
-    doc.add_picture(especies_path, width=5000000, height=3000000)
+    # Adicionar Perfil Esquemático
+    perfil_path = gerar_perfil_esquematico(df)
+    doc.add_picture(perfil_path, width=5000000, height=3000000)
     
     buffer = BytesIO()
     doc.save(buffer)
@@ -93,31 +91,9 @@ if uploaded_file is not None:
     st.write("Estatísticas Calculadas:")
     st.dataframe(estatisticas)
     
-    # Adicionar visualização de gráficos no Streamlit
-    st.write("### Distribuição dos Diâmetros das Árvores")
-    fig, ax = plt.subplots(figsize=(6, 4))
-    df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7, edgecolor='black')
-    kde = stats.gaussian_kde(df['Diâmetro (cm)'].dropna())
-    x_vals = np.linspace(df['Diâmetro (cm)'].min(), df['Diâmetro (cm)'].max(), 100)
-    ax.plot(x_vals, kde(x_vals) * len(df['Diâmetro (cm)']) * np.diff(x_vals).mean(), color='red')
-    ax.set_xlim(left=0)  # Garante que o eixo X começa do zero
-    ax.grid(False)  # Remove as grades
-    plt.xlabel("Diâmetro (cm)")
-    plt.ylabel("Frequência")
-    plt.title("Distribuição Diamétrica")
-    st.pyplot(fig)
-    
-    st.write("### Abundância de Espécies")
-    fig, ax = plt.subplots(figsize=(6, 4))
-    especies_formatadas = df['Espécie'].value_counts().nlargest(10)
-    especies_formatadas.index = especies_formatadas.index.map(formatar_nome_cientifico)
-    especies_formatadas.plot(kind='bar', color='blue', alpha=0.7, edgecolor='black')
-    plt.xlabel("Espécie", fontsize=10, fontstyle='italic')
-    plt.ylabel("Quantidade")
-    plt.title("Abundância de Espécies")
-    plt.xticks(rotation=45, ha='right', fontsize=10, fontstyle='italic')
-    ax.grid(False)  # Remove as grades
-    st.pyplot(fig)
+    st.write("### Perfil Esquemático da Comunidade Florestal")
+    perfil_path = gerar_perfil_esquematico(df)
+    st.image(perfil_path, caption="Perfil Esquemático", use_column_width=True)
     
     if st.button("Gerar Relatório"):
         relatorio_content = gerar_relatorio(df, estatisticas)
