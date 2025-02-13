@@ -226,45 +226,108 @@ elif st.session_state.pagina == "responsavel_tecnico":
         st.session_state.pagina = "equipe_tecnica"
         st.rerun()
 
-# Objetivo da Intervenção Ambiental (já desenvolvido)
+# Objetivo da Intervenção Ambiental
 elif st.session_state.pagina == "objetivo_intervencao":
     # Código do objetivo da intervenção já desenvolvido aqui
     pass
 
-# Caracterização do Meio Biótico
-elif st.session_state.pagina == "caracterizacao_meio_biotico":
-    st.markdown("<h2 class='stHeader'>📌 Caracterização do Meio Biótico</h2>", unsafe_allow_html=True)
-    bioma = st.selectbox("Qual bioma o empreendimento está inserido?", ["Selecione", "Amazônia", "Cerrado", "Caatinga", "Mata Atlântica", "Pampa", "Pantanal"])
-    if bioma:
-        st.write(f"O empreendimento está inserido no bioma {bioma}. Este bioma é caracterizado por...") # Especificar o texto para cada bioma
+# Área de Preservação Permanente (APP)
+elif st.session_state.pagina == "app":
+    st.markdown("<h2 class='stHeader'>📌 Área de Preservação Permanente (APP)</h2>", unsafe_allow_html=True)
+    app_inserido = st.radio("A área de intervenção do projeto está inserida em Área de Preservação Permanente (APP)?", ["Sim", "Não"])
+    if app_inserido == "Sim":
+        area_app = st.number_input("Tamanho da área (ha) sobreposta com a área de intervenção")
     
-    if st.button("Avançar para Unidades de Conservação"):
-        st.session_state.pagina = "unidades_conservacao"
+    if st.button("Avançar para Corredores Ecológicos"):
+        st.session_state.pagina = "corredores_ecologicos"
         st.rerun()
 
-# Unidades de Conservação
-elif st.session_state.pagina == "unidades_conservacao":
-    st.markdown("<h2 class='stHeader'>📌 Unidades de Conservação</h2>", unsafe_allow_html=True)
-    unidade_conservacao = st.text_input("Nome da Unidade de Conservação")
-    tipo_unidade = st.selectbox("Tipo de Unidade", ["Selecione", "Uso Sustentável", "Integral"])
-    distancia_ada = st.number_input("Distância da Unidade de Conservação (km) da ADA")
+# Corredores Ecológicos
+elif st.session_state.pagina == "corredores_ecologicos":
+    st.markdown("<h2 class='stHeader'>📌 Corredores Ecológicos</h2>", unsafe_allow_html=True)
+    corredores_inseridos = st.radio("A área de intervenção do projeto está inserida em área de Corredores Ecológicos?", ["Sim", "Não"])
+    if corredores_inseridos == "Sim":
+        nome_corredor = st.text_input("Nome do Corredor Ecológico")
     
-    if st.button("Avançar para Áreas Prioritárias para Conservação"):
-        st.session_state.pagina = "areas_prioritarias_conservacao"
+    if st.button("Avançar para Reserva da Biosfera da Mata Atlântica"):
+        st.session_state.pagina = "reserva_biosfera_mata_atlantica"
         st.rerun()
 
-# Áreas Prioritárias para Conservação
-elif st.session_state.pagina == "areas_prioritarias_conservacao":
-    st.markdown("<h2 class='stHeader'>📌 Áreas Prioritárias para Conservação</h2>", unsafe_allow_html=True)
-    flora = st.selectbox("Flora", ["Especial", "Extrema", "Muito Alta", "Alta", "Sem Classificação"])
-    fauna = st.selectbox("Fauna", ["Especial", "Extrema", "Muito Alta", "Alta", "Sem Classificação"])
-    herpetofauna = st.selectbox("Herpetofauna", ["Especial", "Extrema", "Muito Alta", "Alta", "Sem Classificação"])
-    avifauna = st.selectbox("Avifauna", ["Especial", "Extrema", "Muito Alta", "Alta", "Sem Classificação"])
-    mastofauna = st.selectbox("Mastofauna", ["Especial", "Extrema", "Muito Alta", "Alta", "Sem Classificação"])
+# Reserva da Biosfera da Mata Atlântica
+elif st.session_state.pagina == "reserva_biosfera_mata_atlantica":
+    st.markdown("<h2 class='stHeader'>📌 Reserva da Biosfera da Mata Atlântica</h2>", unsafe_allow_html=True)
+    reserva_biosfera = st.radio("A área de intervenção do projeto está inserida na reserva ou seu entorno?", ["Sim", "Não"])
+    if reserva_biosfera == "Sim":
+        area_nucleo = st.text_input("Área - Núcleo")
+        zona_amortecimento = st.text_input("Zona de Amortecimento")
+        zona_transicao = st.text_input("Zona de Transição")
     
-    if st.button("Avançar para Reserva Legal"):
-        st.session_state.pagina = "reserva_legal"
+    if st.button("Avançar para Reserva da Biosfera da Serra do Espinhaço"):
+        st.session_state.pagina = "reserva_biosfera_serra_espinhaco"
         st.rerun()
 
-# Continuação com outras seções conforme solicitado...
+# Reserva da Biosfera da Serra do Espinhaço
+elif st.session_state.pagina == "reserva_biosfera_serra_espinhaco":
+    st.markdown("<h2 class='stHeader'>📌 Reserva da Biosfera da Serra do Espinhaço</h2>", unsafe_allow_html=True)
+    reserva_biosfera_serra = st.radio("A área de intervenção do projeto está inserida na reserva ou seu entorno?", ["Sim", "Não"])
+    if reserva_biosfera_serra == "Sim":
+        area_nucleo_serra = st.text_input("Área - Núcleo")
+        zona_amortecimento_serra = st.text_input("Zona de Amortecimento")
+        zona_transicao_serra = st.text_input("Zona de Transição")
+    
+    if st.button("Avançar para Sítios Ramsar"):
+        st.session_state.pagina = "sitos_ramsar"
+        st.rerun()
 
+# Sítios Ramsar
+elif st.session_state.pagina == "sitos_ramsar":
+    st.markdown("<h2 class='stHeader'>📌 Sítios Ramsar</h2>", unsafe_allow_html=True)
+    sitios_ramsar = st.radio("A área de intervenção do projeto está inserida em Sítios Ramsar?", ["Sim", "Não"])
+    if sitios_ramsar == "Sim":
+        nome_sitio = st.text_input("Nome do Sítio Ramsar")
+    
+    if st.button("Avançar para Hidrografia"):
+        st.session_state.pagina = "hidrografia"
+        st.rerun()
+
+# Hidrografia
+elif st.session_state.pagina == "hidrografia":
+    st.markdown("<h2 class='stHeader'>📌 Hidrografia</h2>", unsafe_allow_html=True)
+    bacia_hidrografica = st.text_input("Bacia Hidrográfica")
+    subbacia_hidrografica = st.text_input("Subbacia Hidrográfica")
+    
+    if st.button("Avançar para Inventário Florestal"):
+        st.session_state.pagina = "inventario_florestal"
+        st.rerun()
+
+# Inventário Florestal
+elif st.session_state.pagina == "inventario_florestal":
+    st.markdown("<h2 class='stHeader'>📌 Inventário Florestal</h2>", unsafe_allow_html=True)
+    tipo_inventario = st.selectbox("Tipo de Inventário", ["Censo Florestal", "Inventário por Amostragem"])
+    
+    if tipo_inventario == "Censo Florestal":
+        area_inventario = st.number_input("Tamanho da área em hectares")
+        formula_inventario = st.text_input("Fórmula a ser utilizada")
+    elif tipo_inventario == "Inventário por Amostragem":
+        tamanho_parcela = st.number_input("Tamanho da parcela (ha)")
+        dimensao_parcela = st.text_input("Dimensões da parcela (comprimento x largura)")
+        area_inventario_amostragem = st.number_input("Tamanho da área do inventário")
+        tipo_analise = st.selectbox("Tipo de Análise", ["Casual Simples", "Casual Estratificada"])
+        
+        if tipo_analise == "Casual Simples":
+            formula_volume = st.text_input("Fórmula do volume")
+        elif tipo_analise == "Casual Estratificada":
+            num_estrato = st.number_input("Número de estratos")
+            nome_estrato = st.text_input("Nome do estrato")
+            tamanho_area_estrato = st.number_input("Tamanho da área do estrato")
+            formula_estrato = st.text_input("Fórmula do estrato")
+    
+    if st.button("Avançar para Enviar Resultados"):
+        st.session_state.pagina = "enviar_resultados"
+        st.rerun()
+
+# Enviar Resultados
+elif st.session_state.pagina == "enviar_resultados":
+    st.markdown("<h2 class='stHeader'>📌 Enviar Resultados para Análise</h2>", unsafe_allow_html=True)
+    st.write("Por favor, envie os dados para que possamos rodar os resultados e analisar o inventário florestal.")
+ 
