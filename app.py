@@ -32,10 +32,10 @@ def processar_dados(uploaded_file):
     df['Volume (m³)'] = np.pi * (df['Diâmetro (cm)'] / 200) ** 2 * df['Altura (m)']
     return df
 
-def rodar_analise_r(abundancias, dados_file, quantidade_de_arvores, area_ua, tipo_inventario, tipo_analise, tamanho_parcela, area_inventario):
+def rodar_analise_r(abundancias, dados_file, quantidade_de_arvores, area_ua, tipo_inventario, tipo_analise, tamanho_parcela, area_inventario, estratos_info):
     """Executa o script R e captura os resultados."""
     resultado = subprocess.run(
-        ["Rscript", "analises_florestais.R", abundancias, dados_file, str(quantidade_de_arvores), str(area_ua), tipo_inventario, tipo_analise, str(tamanho_parcela), str(area_inventario)],
+        ["Rscript", "analises_florestais.R", abundancias, dados_file, str(quantidade_de_arvores), str(area_ua), tipo_inventario, tipo_analise, str(tamanho_parcela), str(area_inventario), estratos_info],
         capture_output=True,
         text=True
     )
@@ -50,6 +50,7 @@ tipo_inventario = st.sidebar.selectbox(
 )
 
 tipo_analise = None
+estratos_info = ""
 if tipo_inventario == "Amostragem por parcelas":
     tipo_analise = st.sidebar.selectbox(
         "Tipo de Análise",
@@ -63,6 +64,16 @@ if tipo_inventario == "Amostragem por parcelas":
         "Tamanho da área do inventário (ha)",
         min_value=0.1, value=1.0
     )
+    
+    if tipo_analise == "Estratificada":
+        num_estratos = st.sidebar.number_input("Número de Estratos", min_value=1, value=2, step=1)
+        estratos = []
+        for i in range(int(num_estratos)):
+            nome_estrato = st.sidebar.text_input(f"Nome do Estrato {i+1}")
+            area_estrato = st.sidebar.number_input(f"Área do Estrato {i+1} (ha)", min_value=0.1, value=1.0)
+            num_parcelas = st.sidebar.number_input(f"Número de Parcelas no Estrato {i+1}", min_value=1, value=5, step=1)
+            estratos.append(f"{nome_estrato}:{area_estrato}:{num_parcelas}")
+        estratos_info = "|".join(estratos)
 else:
     tamanho_parcela = None
     area_inventario = st.sidebar.number_input(
@@ -88,6 +99,6 @@ if uploaded_file is not None:
     
     if st.button("Gerar Relatório"):
         abundancias = ','.join(map(str, df.groupby('Espécie')['Diâmetro (cm)'].sum().tolist()))
-        resultados_r = rodar_analise_r(abundancias, "dados_inventario.xlsx", 30, tamanho_area_r, tipo_inventario_r, tipo_analise_r, tamanho_parcela_r, tamanho_area_r)
+        resultados_r = rodar_analise_r(abundancias, "dados_inventario.xlsx", 30, tamanho_area_r, tipo_inventario_r, tipo_analise_r, tamanho_parcela_r, tamanho_area_r, estratos_info)
         st.write("Resultados das Análises Estatísticas (R):")
         st.text(resultados_r)
