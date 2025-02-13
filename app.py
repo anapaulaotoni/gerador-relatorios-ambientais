@@ -1,4 +1,4 @@
-st.markdown("<style>body {background-color: white !important;}</style>", unsafe_allow_html=True)
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -10,6 +10,7 @@ import os
 import scipy.stats as stats
 from adjustText import adjust_text
 import subprocess
+st.markdown("<style>body {background-color: white !important;}</style>", unsafe_allow_html=True)
 
 # Configurações visuais globais do Streamlit
 st.set_page_config(page_title="Gerador de Relatórios Ambientais", layout="wide")
