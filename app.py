@@ -14,9 +14,6 @@ import scipy.stats as stats
 from adjustText import adjust_text
 import subprocess
 
-# Configurações visuais globais do Streamlit
-st.set_page_config(page_title="Gerador de Relatórios Ambientais", layout="wide")
-
 # Estilização CSS personalizada com fundo de floresta
 st.markdown("""
     <style>
