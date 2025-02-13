@@ -70,50 +70,66 @@ if not st.session_state.inicio:
         st.session_state.inicio = True
         st.rerun()
 else:
-    # Criando um fluxo passo a passo
-    st.markdown("<h2 class='stHeader'>📌 Tipo de Inventário</h2>", unsafe_allow_html=True)
-    tipo_inventario = st.selectbox("Selecione o tipo de inventário:", ["Amostragem por parcelas", "Censo florestal"])
+    # Formulário Inicial
+    st.markdown("<h2 class='stHeader'>📌 Informações Gerais</h2>", unsafe_allow_html=True)
     
-    if "tipo_inventario" not in st.session_state:
-        st.session_state.tipo_inventario = tipo_inventario
+    # Dados do Requerente ou Empreendedor
+    with st.expander("📌 Dados do Requerente ou Empreendedor"):
+        nome_requerente = st.text_input("Nome/Razão Social")
+        cnpj_requerente = st.text_input("CNPJ")
+        endereco_requerente = st.text_area("Endereço")
+        contato_requerente = st.text_input("Nome do Contato")
+        telefone_requerente = st.text_input("Telefone")
+        email_requerente = st.text_input("E-mail")
     
-    if tipo_inventario == "Amostragem por parcelas":
-        st.markdown("<h2 class='stHeader'>🔍 Tipo de Análise</h2>", unsafe_allow_html=True)
-        tipo_analise = st.selectbox("Escolha o tipo de análise:", ["Casual Simples", "Estratificada"])
-
-        tamanho_parcela = st.number_input("📏 Tamanho da parcela (m²)", min_value=1, value=100)
-        area_inventario = st.number_input("🌍 Tamanho da área do inventário (ha)", min_value=0.1, value=1.0)
+    # Dados do Proprietário do Imóvel
+    with st.expander("📌 Dados do Proprietário do Imóvel"):
+        nome_proprietario = st.text_input("Nome do Proprietário")
+        cnpj_proprietario = st.text_input("CNPJ do Proprietário")
+    
+    # Dados do Imóvel
+    with st.expander("📌 Dados do Imóvel"):
+        denominacao_imovel = st.text_input("Denominação do Imóvel")
+        municipio_imovel = st.text_input("Município")
+        area_propriedade = st.number_input("Área da Propriedade (ha)", min_value=0.1, value=1.0)
+        car_imovel = st.text_input("Cadastro Ambiental Rural (CAR)")
+    
+    # Objetivo da Intervenção Ambiental
+    with st.expander("📌 Objetivo da Intervenção Ambiental"):
+        objetivo_intervencao = st.selectbox("Selecione a finalidade da intervenção:",
+                                           ["Supressão de vegetação nativa", "Intervenção em APPs",
+                                            "Supressão de sub-bosque", "Manejo sustentável", "Destoca",
+                                            "Corte de árvores isoladas", "Supressão de eucaliptos",
+                                            "Aproveitamento de material lenhoso"])
+        area_intervencao = st.number_input("Área requerida (ha)", min_value=0.1, value=1.0)
+    
+    # Caracterização do Meio Biótico
+    with st.expander("📌 Caracterização do Meio Biótico"):
+        bioma = st.selectbox("Selecione o bioma:", ["Amazônia", "Mata Atlântica", "Cerrado", "Caatinga", "Pantanal", "Pampa"])
+        flora_upload = st.file_uploader("Upload da Lista Florística", type=["xlsx", "csv"])
+        fauna_upload = st.file_uploader("Upload da Lista Faunística", type=["xlsx", "csv"])
+    
+    # Caracterização do Meio Abiótico
+    with st.expander("📌 Caracterização do Meio Abiótico"):
+        clima_upload = st.file_uploader("Upload de Dados Climáticos")
+        solos_upload = st.file_uploader("Upload de Relatório Pedológico")
+        hidrografia_upload = st.file_uploader("Upload de Mapas Hidrográficos")
+        topografia_upload = st.file_uploader("Upload de Modelo Digital de Terreno")
+    
+    # Botão para avançar
+    if st.button("Avançar para o Inventário Florestal"):
+        st.session_state.inicio = "inventario"
+        st.rerun()
+    
+    if "inventario" in st.session_state:
+        # Inserindo a parte do inventário florestal já existente no código
+        st.markdown("<h2 class='stHeader'>📌 Tipo de Inventário</h2>", unsafe_allow_html=True)
+        tipo_inventario = st.selectbox("Selecione o tipo de inventário:", ["Amostragem por parcelas", "Censo florestal"])
         
-        if tipo_analise == "Estratificada":
-            num_estratos = st.number_input("📊 Número de Estratos", min_value=1, value=2, step=1)
-            estratos = []
-            for i in range(int(num_estratos)):
-                with st.expander(f"🔹 Configuração do Estrato {i+1}"):
-                    nome_estrato = st.text_input(f"📛 Nome do Estrato {i+1}")
-                    area_estrato = st.number_input(f"📏 Área do Estrato {i+1} (ha)", min_value=0.1, value=1.0)
-                    num_parcelas = st.number_input(f"📌 Número de Parcelas no Estrato {i+1}", min_value=1, value=5, step=1)
-                    estratos.append(f"{nome_estrato}:{area_estrato}:{num_parcelas}")
-            estratos_info = "|".join(estratos)
-    else:
-        tamanho_parcela = None
-        area_inventario = st.number_input("🌍 Tamanho da área do inventário (ha)", min_value=0.1, value=1.0)
-    
-    st.markdown("<h2 class='stHeader'>📂 Enviar Arquivo de Dados</h2>", unsafe_allow_html=True)
-    uploaded_file = st.file_uploader("Faça upload do arquivo Excel contendo os dados do inventário florestal", type=["xlsx"])
-    
-    if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
-        st.markdown("### 🔍 Prévia dos Dados")
-        st.dataframe(df.head())
-
-        if st.button("📊 Gerar Relatório"):
-            abundancias = ','.join(map(str, df.groupby('Espécie')['Diâmetro (cm)'].sum().tolist()))
-            
-            resultados_r = subprocess.run(
-                ["Rscript", "analises_florestais.R", abundancias, "dados_inventario.xlsx", "30", str(area_inventario), tipo_inventario, "N/A", str(tamanho_parcela), str(area_inventario)],
-                capture_output=True,
-                text=True
-            ).stdout
-            
-            st.markdown("### 📑 Resultados das Análises Estatísticas (R)")
-            st.text(resultados_r)
+        if tipo_inventario == "Amostragem por parcelas":
+            tipo_analise = st.selectbox("Escolha o tipo de análise:", ["Casual Simples", "Estratificada"])
+            tamanho_parcela = st.number_input("📏 Tamanho da parcela (m²)", min_value=1, value=100)
+            area_inventario = st.number_input("🌍 Tamanho da área do inventário (ha)", min_value=0.1, value=1.0)
+        
+        st.markdown("<h2 class='stHeader'>📂 Enviar Arquivo de Dados</h2>", unsafe_allow_html=True)
+        uploaded_file = st.file_uploader("Faça upload do arquivo Excel contendo os dados do inventário florestal", type=["xlsx"])
