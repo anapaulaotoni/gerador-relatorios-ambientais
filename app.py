@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -6,6 +7,7 @@ from docx import Document
 from io import BytesIO
 import base64
 import os
+import scipy.stats as stats
 
 def formatar_nome_cientifico(nome):
     """Abrevia a primeira palavra e mantém a segunda para nome científico."""
@@ -44,7 +46,10 @@ def gerar_relatorio(df, estatisticas):
     
     fig, ax = plt.subplots(figsize=(6, 4))
     df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7, edgecolor='black')
-    df['Diâmetro (cm)'].plot(kind='kde', ax=ax, secondary_y=False, color='red')
+    kde = stats.gaussian_kde(df['Diâmetro (cm)'].dropna())
+    x_vals = np.linspace(df['Diâmetro (cm)'].min(), df['Diâmetro (cm)'].max(), 100)
+    ax.plot(x_vals, kde(x_vals) * len(df['Diâmetro (cm)']) * np.diff(x_vals).mean(), color='red')
+    ax.set_xlim(left=0)  # Garante que o eixo X começa do zero
     plt.xlabel("Diâmetro (cm)")
     plt.ylabel("Frequência")
     plt.title("Distribuição Diamétrica")
@@ -91,7 +96,10 @@ if uploaded_file is not None:
     st.write("### Distribuição dos Diâmetros das Árvores")
     fig, ax = plt.subplots(figsize=(6, 4))
     df['Diâmetro (cm)'].hist(bins=15, color='green', alpha=0.7, edgecolor='black')
-    df['Diâmetro (cm)'].plot(kind='kde', ax=ax, secondary_y=False, color='red')
+    kde = stats.gaussian_kde(df['Diâmetro (cm)'].dropna())
+    x_vals = np.linspace(df['Diâmetro (cm)'].min(), df['Diâmetro (cm)'].max(), 100)
+    ax.plot(x_vals, kde(x_vals) * len(df['Diâmetro (cm)']) * np.diff(x_vals).mean(), color='red')
+    ax.set_xlim(left=0)  # Garante que o eixo X começa do zero
     plt.xlabel("Diâmetro (cm)")
     plt.ylabel("Frequência")
     plt.title("Distribuição Diamétrica")
