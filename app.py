@@ -96,21 +96,27 @@ else:
     
     # Objetivo da Intervenção Ambiental
     with st.expander("📌 Objetivo da Intervenção Ambiental"):
-        intervencoes = {
-            "Supressão de vegetação nativa": False,
-            "Intervenção em APPs": False,
-            "Supressão de sub-bosque": False,
-            "Manejo sustentável": False,
-            "Destoca": False,
-            "Corte de árvores isoladas": False,
-            "Supressão de eucaliptos": False,
-            "Aproveitamento de material lenhoso": False
-        }
+        st.markdown("### Selecione as Intervenções")
+        intervencoes_selecionadas = []
+        
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            for chave in ["Supressão de vegetação nativa", "Intervenção em APPs", "Supressão de sub-bosque", "Manejo sustentável", "Destoca", "Corte de árvores isoladas", "Supressão de eucaliptos", "Aproveitamento de material lenhoso"]:
+                if st.checkbox(chave):
+                    intervencoes_selecionadas.append(chave)
         
         areas_intervencao = {}
         individuos_intervencao = {}
         
-        st.markdown("### Selecione as Intervenções")
+        with col2:
+            for chave in intervencoes_selecionadas:
+                areas_intervencao[chave] = st.number_input(f"Área (ha) para {chave}", min_value=0.1, value=1.0)
+        
+        with col3:
+            for chave in ["Corte de árvores isoladas", "Supressão de eucaliptos"]:
+                if chave in intervencoes_selecionadas:
+                    individuos_intervencao[chave] = st.number_input(f"Indivíduos para {chave}", min_value=1, value=10)
         for chave in intervencoes.keys():
             intervencoes[chave] = st.checkbox(chave)
             if intervencoes[chave]:
