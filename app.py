@@ -13,42 +13,49 @@ import subprocess
 # Configuração da página inicial
 st.set_page_config(page_title="Gerador de Relatórios Ambientais", layout="wide")
 
+# Paleta de cores personalizada
+primary_color = "#8FC9CB"
+secondary_color = "#97C1A9"
+background_color = "#D4F0F1"
+accent_color = "#5FA37A"
+text_color = "#2E4053"
+
 # CSS para melhoria da interface
-st.markdown("""
+st.markdown(f"""
     <style>
-    .main {
-        background-color: #f5f7fa;
+    .main {{
+        background-color: {background_color};
         padding: 20px;
-    }
-    .block-container {
+    }}
+    .block-container {{
         padding: 2rem;
         background: white;
         border-radius: 10px;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .stButton>button {
-        background-color: #4CAF50;
+    }}
+    .stButton>button {{
+        background-color: {primary_color};
         color: white;
         font-size: 18px;
         border-radius: 10px;
         padding: 10px 20px;
         border: none;
         width: 100%;
-    }
-    .stButton>button:hover {
-        background-color: #45a049;
-    }
-    .stTitle {
-        color: #2E4053;
+    }}
+    .stButton>button:hover {{
+        background-color: {accent_color};
+    }}
+    .stTitle {{
+        color: {text_color};
         font-size: 28px;
         font-weight: bold;
         text-align: center;
-    }
-    .stHeader {
-        color: #4CAF50;
+    }}
+    .stHeader {{
+        color: {secondary_color};
         font-size: 24px;
         text-align: center;
-    }
+    }}
     </style>
 """, unsafe_allow_html=True)
 
