@@ -10,27 +10,6 @@ import scipy.stats as stats
 from adjustText import adjust_text
 import subprocess
 
-# Formulário inicial para coletar informações do usuário
-st.sidebar.header("Configurações do Inventário")
-
-tipo_inventario = st.sidebar.selectbox(
-    "Tipo de Inventário",
-    ["Amostragem por parcelas", "Censo florestal"]
-)
-
-area_ua = st.sidebar.number_input(
-    "Tamanho da unidade amostral (m²)",
-    min_value=1, value=100
-)
-
-if tipo_inventario == "Amostragem por parcelas":
-    st.sidebar.write("Cada parcela será considerada uma unidade amostral.")
-else:
-    st.sidebar.write("Será considerado um censo florestal.")
-
-# Converter o tipo de inventário para o formato esperado pelo R
-tipo_inventario_r = "amostragem" if tipo_inventario == "Amostragem por parcelas" else "censo"
-
 def formatar_nome_cientifico(nome):
     """Abrevia a primeira palavra e mantém a segunda para nome científico."""
     palavras = nome.split()
@@ -53,58 +32,49 @@ def processar_dados(uploaded_file):
     df['Volume (m³)'] = np.pi * (df['Diâmetro (cm)'] / 200) ** 2 * df['Altura (m)']
     return df
 
-def rodar_analise_r(abundancias):
+def rodar_analise_r(abundancias, dados_file, quantidade_de_arvores, area_ua, tipo_inventario, tipo_analise, tamanho_parcela, area_inventario):
     """Executa o script R e captura os resultados."""
-    resultado = subprocess.run(["Rscript", "analises_florestais.R", abundancias], capture_output=True, text=True)
+    resultado = subprocess.run(
+        ["Rscript", "analises_florestais.R", abundancias, dados_file, str(quantidade_de_arvores), str(area_ua), tipo_inventario, tipo_analise, str(tamanho_parcela), str(area_inventario)],
+        capture_output=True,
+        text=True
+    )
     return resultado.stdout
-def gerar_perfil_esquematico(df):
-    """Gera um gráfico de perfil esquemático da floresta com nomes ajustados."""
-    especies = df.groupby('Espécie').agg({'Altura (m)': 'mean', 'Diâmetro (cm)': 'mean'}).reset_index()
-    especies['Espécie'] = especies['Espécie'].apply(formatar_nome_cientifico)
-    
-    fig, ax = plt.subplots(figsize=(8, 5))
-    
-    np.random.seed(42)
-    especies['x_pos'] = np.linspace(0, 10, len(especies))
-    
-    text_objects = []
-    for _, row in especies.iterrows():
-        ellipse = plt.Circle((row['x_pos'], row['Altura (m)']), row['Diâmetro (cm)']/30, color='green', alpha=0.7)
-        ax.add_patch(ellipse)
-        ax.plot([row['x_pos'], row['x_pos']], [0, row['Altura (m)']], color='brown', linewidth=2)
-        text_objects.append(ax.text(row['x_pos'], row['Altura (m)'] + 0.5, row['Espécie'], fontsize=8, fontstyle='italic', ha='center'))
-    
-    adjust_text(text_objects, arrowprops=dict(arrowstyle='-', color='black'))
-    
-    ax.set_xlim(-1, 11)
-    ax.set_ylim(0, especies['Altura (m)'].max() + 2)
-    ax.set_xlabel("Posição das Árvores")
-    ax.set_ylabel("Altura (m)")
-    ax.set_title("Perfil Esquemático da Comunidade Florestal")
-    ax.grid(False)
-    
-    plt.savefig("perfil_esquematico.png", bbox_inches='tight', dpi=300)
-    return "perfil_esquematico.png"
 
-def gerar_relatorio(df):
-    """Gera um relatório em Word com os resultados, incluindo gráficos."""
-    doc = Document()
-    doc.add_heading('Relatório de Inventário Florestal', level=1)
-    doc.add_paragraph("Este relatório apresenta os resultados do inventário florestal realizado.")
-    
-    # Adicionar Perfil Esquemático
-    perfil_path = gerar_perfil_esquematico(df)
-    doc.add_picture(perfil_path, width=5000000, height=3000000)
-    
-    buffer = BytesIO()
-    doc.save(buffer)
-    return buffer.getvalue()
+# Criando o formulário inicial
+st.sidebar.header("Configurações do Inventário")
 
-def download_link(content, filename, label):
-    """Cria um link de download para o arquivo gerado."""
-    b64 = base64.b64encode(content).decode()
-    href = f'<a href="data:file/docx;base64,{b64}" download="{filename}">{label}</a>'
-    return href
+tipo_inventario = st.sidebar.selectbox(
+    "Tipo de Inventário",
+    ["Amostragem por parcelas", "Censo florestal"]
+)
+
+tipo_analise = None
+if tipo_inventario == "Amostragem por parcelas":
+    tipo_analise = st.sidebar.selectbox(
+        "Tipo de Análise",
+        ["Casual Simples", "Estratificada"]
+    )
+    tamanho_parcela = st.sidebar.number_input(
+        "Tamanho da parcela (m²)",
+        min_value=1, value=100
+    )
+    area_inventario = st.sidebar.number_input(
+        "Tamanho da área do inventário (ha)",
+        min_value=0.1, value=1.0
+    )
+else:
+    tamanho_parcela = None
+    area_inventario = st.sidebar.number_input(
+        "Tamanho da área do inventário (ha)",
+        min_value=0.1, value=1.0
+    )
+
+# Converter o tipo de inventário para o formato esperado pelo R
+tipo_inventario_r = "amostragem" if tipo_inventario == "Amostragem por parcelas" else "censo"
+tipo_analise_r = tipo_analise if tipo_analise else "N/A"
+tamanho_parcela_r = tamanho_parcela if tamanho_parcela else 0
+tamanho_area_r = area_inventario if area_inventario else 0
 
 # Criando a Interface
 st.title("Gerador de Relatórios Ambientais")
@@ -116,10 +86,8 @@ if uploaded_file is not None:
     st.write("Prévia dos dados:")
     st.dataframe(df.head())
     
-    st.write("### Perfil Esquemático da Comunidade Florestal")
-    perfil_path = gerar_perfil_esquematico(df)
-    st.image(perfil_path, caption="Perfil Esquemático", use_container_width=True)
-    
     if st.button("Gerar Relatório"):
-        relatorio_content = gerar_relatorio(df)
-        st.markdown(download_link(relatorio_content, "Relatorio_Inventario.docx", "📄 Baixar Relatório"), unsafe_allow_html=True)
+        abundancias = ','.join(map(str, df.groupby('Espécie')['Diâmetro (cm)'].sum().tolist()))
+        resultados_r = rodar_analise_r(abundancias, "dados_inventario.xlsx", 30, tamanho_area_r, tipo_inventario_r, tipo_analise_r, tamanho_parcela_r, tamanho_area_r)
+        st.write("Resultados das Análises Estatísticas (R):")
+        st.text(resultados_r)
