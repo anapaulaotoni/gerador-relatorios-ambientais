@@ -134,4 +134,3 @@ with col2:
             # Exibir resultados
             st.markdown("### 📑 Resultados das Análises Estatísticas (R)")
             st.text(resultados_r)
-
