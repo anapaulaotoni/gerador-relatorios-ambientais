@@ -69,10 +69,11 @@ if tipo_inventario == "Amostragem por parcelas":
         num_estratos = st.sidebar.number_input("Número de Estratos", min_value=1, value=2, step=1)
         estratos = []
         for i in range(int(num_estratos)):
-            nome_estrato = st.sidebar.text_input(f"Nome do Estrato {i+1}")
-            area_estrato = st.sidebar.number_input(f"Área do Estrato {i+1} (ha)", min_value=0.1, value=1.0)
-            num_parcelas = st.sidebar.number_input(f"Número de Parcelas no Estrato {i+1}", min_value=1, value=5, step=1)
-            estratos.append(f"{nome_estrato}:{area_estrato}:{num_parcelas}")
+            with st.sidebar.expander(f"Configuração do Estrato {i+1}"):
+                nome_estrato = st.text_input(f"Nome do Estrato {i+1}", key=f"nome_{i}")
+                area_estrato = st.number_input(f"Área do Estrato {i+1} (ha)", min_value=0.1, value=1.0, key=f"area_{i}")
+                num_parcelas = st.number_input(f"Número de Parcelas no Estrato {i+1}", min_value=1, value=5, step=1, key=f"parcelas_{i}")
+                estratos.append(f"{nome_estrato}:{area_estrato}:{num_parcelas}")
         estratos_info = "|".join(estratos)
 else:
     tamanho_parcela = None
